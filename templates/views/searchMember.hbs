@@ -1,0 +1,21 @@
+{{>header}}
+
+<h1 class="mt-3">Name: {{member.name}}</h1>
+<h2>Reg No: {{member.regno}}</h2>
+<div class="memTable mt-3">
+    <table class="table table-striped">
+        <h2 class="center">Payments</h2>
+        <tbody>
+            <tr>
+                <th scope="col">Sn</th>
+                <th scope="col">Start</th>
+                <th scope="col">End</th>
+            </tr>
+            <tr>
+                <th scope="row">1</th>
+                <td>{{formattedStartDate}}</td>
+                <td>{{formattedEndDate}}</td>
+            </tr>
+        </tbody>
+    </table>
+</div>

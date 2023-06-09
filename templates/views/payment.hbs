@@ -1,0 +1,25 @@
+{{>header}}
+
+
+<form method="POST" class="addMem" autocomplete="off">
+
+    <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">Start:</label>
+        <input type="text" name="startDate" placeholder="YYYY-MM-DD" required class="form-control"
+            id="exampleInputEmail1" />
+    </div>
+    <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">End:</label>
+        <input type="number" name="endDate" placeholder="YYYY-MM-DD" required class="form-control"
+            id="exampleInputEmail1" />
+    </div>
+
+
+
+    <button type="submit" class="btn btn-success" style="margin-bottom: 5px;">Add</button>
+
+    <a href="/viewall" class="btn btn-primary">View All</a>
+
+
+
+</form>

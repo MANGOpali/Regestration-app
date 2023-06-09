@@ -1,0 +1,50 @@
+.tableDiv {
+  margin: 10px 200px;
+  box-shadow: 7px 10px 17px 0px rgba(0, 0, 0, 0.73);
+  -webkit-box-shadow: 7px 10px 17px 0px rgba(0, 0, 0, 0.73);
+  -moz-box-shadow: 7px 10px 17px 0px rgba(0, 0, 0, 0.73);
+  padding: 60px 40px;
+  border-radius: 10px;
+}
+.table {
+  text-align: center;
+}
+
+.addMem {
+  box-shadow: 7px 10px 17px 0px rgba(0, 0, 0, 0.73);
+  -webkit-box-shadow: 7px 10px 17px 0px rgba(0, 0, 0, 0.73);
+  -moz-box-shadow: 7px 10px 17px 0px rgba(0, 0, 0, 0.73);
+  padding: 60px 40px;
+  border-radius: 10px;
+  margin: 60px 300px;
+  display: flex;
+  flex-direction: column;
+}
+.center {
+  text-align: center;
+}
+.memTable {
+  box-shadow: 7px 10px 17px 0px rgba(0, 0, 0, 0.73);
+  -webkit-box-shadow: 7px 10px 17px 0px rgba(0, 0, 0, 0.73);
+  -moz-box-shadow: 7px 10px 17px 0px rgba(0, 0, 0, 0.73);
+  padding: 60px 40px;
+  border-radius: 10px;
+  margin: 0px 200px;
+  margin-bottom: 50px;
+}
+
+h1,
+h2 {
+  font-size: 30px;
+  text-align: center;
+  margin-top: 10px;
+  background: #121fcf;
+  background: -webkit-linear-gradient(to right, #121fcf 0%, #cf1512 100%);
+  background: -moz-linear-gradient(to right, #121fcf 0%, #cf1512 100%);
+  background: linear-gradient(to right, #121fcf 0%, #cf1512 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.custom-btn {
+  padding: 0.375rem 0.75rem; /* Adjust the padding values as needed */
+}
