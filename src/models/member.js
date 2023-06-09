@@ -27,6 +27,17 @@ const memberSchema = new mongoose.Schema({
   },
 });
 
+// Define a virtual getter for the computedStatus field
+memberSchema.virtual("computedStatus").get(function () {
+  const currentDate = new Date();
+
+  if (this.end <= currentDate) {
+    return "expired";
+  } else {
+    return "active";
+  }
+});
+
 const Member = new mongoose.model("Members", memberSchema);
 
 module.exports = Member;

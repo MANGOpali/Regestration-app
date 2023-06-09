@@ -21,17 +21,6 @@
         <input type="date" name="endDate" value="{{ convertDateFormat  member.end}}" required class="form-control"
             id="exampleInputEmail1" />
     </div>
-    <div class="mb-3">
-        <label for="exampleInputEmail1" class="form-label">Status:</label>
-        <select class="form-select" name="status" aria-label="Default select example">
-            <option value="" disabled>Select status</option>
-            <option value="active" {{#if (eq member.status "active" )}}selected{{/if}}>Active</option>
-            <option value="expired" {{#if (eq member.status "expired" )}}selected{{/if}}>Expired</option>
-        </select>
-    </div>
-
-
-
 
     <button type="submit" class="btn btn-success" style="margin-bottom: 5px;">Update</button>
 
