@@ -4,9 +4,11 @@ const app = express();
 const port = process.env.PORT || 3000;
 const path = require("path");
 const hbs = require("hbs");
+const session = require("express-session");
 
 require("./db/conn");
 const Member = require("../src/models/member");
+const Register = require("../src/models/register");
 
 //view engiene
 const partials_path = path.join(__dirname, "../templates/partials");
@@ -40,8 +42,50 @@ hbs.registerHelper("eq", function (arg1, arg2, options) {
 });
 
 //index file hbs
-app.get("/", async (req, res) => {
-  res.render("index");
+app.get("/login", async (req, res) => {
+  res.render("login");
+});
+//regestration section
+app.get("/register", async (req, res) => {
+  res.render("register");
+});
+app.post("/register", async (req, res) => {
+  try {
+    const password = req.body.password;
+    const confirmpassword = req.body.confirmpassword;
+    if (password === confirmpassword) {
+      const registerMember = new Register({
+        fname: req.body.firstname,
+        lname: req.body.lastname,
+        email: req.body.email,
+        password: req.body.password,
+        confirmpassword: req.body.confirmpassword,
+        phone: req.body.phone,
+      });
+      await registerMember.save();
+      res.status(201).render("login");
+    }
+  } catch (err) {
+    res.send("password are not matching");
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const email = req.body.email;
+    const password = req.body.password;
+    const useremail = await Register.findOne({ email: email });
+
+    req.session.userId = user.id;
+
+    if (useremail.password === password) {
+      res.redirect("/viewall");
+    } else {
+      res.send("invalid login Details");
+    }
+  } catch (err) {
+    res.status(400).send("invalid Details ");
+  }
 });
 
 app.get("/viewall", async (req, res) => {
@@ -60,12 +104,6 @@ app.get("/addmember", async (req, res) => {
 
 app.post("/addmember", async (req, res) => {
   try {
-    // Format the start and end dates for display
-    // const start = new Date(req.body.startDate);
-    // const end = new Date(req.body.endDate);
-    // const formattedStartDate = start.toISOString().split("T")[0]; // Format start date as YYYY-MM-DD
-    // const formattedEndDate = end.toISOString().split("T")[0]; // Format end date as YYYY-MM-DD
-
     const member = new Member({
       name: req.body.name,
       regno: req.body.regno,
@@ -75,8 +113,7 @@ app.post("/addmember", async (req, res) => {
     });
 
     const newMember = await member.save();
-    // Fetch the member's data again
-    // const savedMember = await Member.findById(newMember._id);
+
     res.redirect("/viewall");
   } catch (err) {
     console.error("Error adding member:", err);
@@ -115,7 +152,6 @@ app.post("/editMember/:id", async (req, res) => {
     member.end = new Date(endDate); // Parse endDate into a Date object
     member.start = new Date(startDate); // Parse startDate into a Date object
 
-    // console.log(member.start, member.end);
     // Save the updated member object to the database
     const updatedMember = await member.save();
 

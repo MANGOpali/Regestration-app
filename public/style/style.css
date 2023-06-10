@@ -14,9 +14,9 @@
   box-shadow: 7px 10px 17px 0px rgba(0, 0, 0, 0.73);
   -webkit-box-shadow: 7px 10px 17px 0px rgba(0, 0, 0, 0.73);
   -moz-box-shadow: 7px 10px 17px 0px rgba(0, 0, 0, 0.73);
-  padding: 60px 40px;
+  padding: 60px 80px;
   border-radius: 10px;
-  margin: 60px 300px;
+  margin: 110px 350px;
   display: flex;
   flex-direction: column;
 }
