@@ -154,12 +154,24 @@ app.get("/searchMember", async (req, res) => {
   try {
     const searchName = req.query.name; // Get the search name from the query parameters
     const searchReg = req.query.regno;
-    const member = await Member.findOne({ name: searchName, regno: searchReg });
+    let query = {};
 
-    if (!member) {
-      // Member not found
-      return res.status(404).send("Member not found");
+    // Build the query object based on the provided search parameters
+    if (searchName && searchReg) {
+      query = { name: searchName, regno: searchReg };
+    } else if (searchName) {
+      query = { name: searchName };
+    } else if (searchReg) {
+      query = { regno: searchReg };
+    } else {
+      // No search parameters provided
+      return res
+        .status(400)
+        .send("Please provide a name or regno for the search");
     }
+
+    const member = await Member.findOne(query);
+
     const start = new Date(member.start);
     const end = new Date(member.end);
     const formattedStartDate = start.toISOString().split("T")[0];
@@ -169,6 +181,8 @@ app.get("/searchMember", async (req, res) => {
       member,
       formattedStartDate,
       formattedEndDate,
+      searchName: "", // Clear the searchName value in the template
+      searchReg: "", // Clear the searchReg value in the template
     });
   } catch (err) {
     res.send("No member found");

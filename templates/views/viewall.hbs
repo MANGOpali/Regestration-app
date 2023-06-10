@@ -1,9 +1,9 @@
 {{>header}}
 
-<div class="tableContainer mt-3">
-    <h1 style="text-align: center">All Members</h1>
+<div class="tableContainer mt-4">
 
     <div class="tableDiv">
+        <h1 style="text-align: center " class="mb-3">All Members</h1>
         <table class="table table-striped">
             <thead>
                 <tr>
@@ -22,6 +22,7 @@
 
                 </div>
                 <div class="container mb-4 w-75">
+
                     <form action="/searchMember" method="GET">
                         <div class="row">
                             <div class="col">
@@ -40,55 +41,57 @@
 
 
                 {{#each members }}
+                <div class="head">
+                    <tr>
+                        <th scope="row">{{this.name}}</th>
+                        <th>{{this.regno}}</th>
+                        <th class="stat ">{{this.computedStatus}}</th>
+                        <td>
+                            <div class="d-flex justify-content-end gap-2">
 
-                <tr class="head">
-                    <th scope="row">{{this.name}}</th>
-                    <th>{{this.regno}}</th>
-                    <th class="stat">{{this.computedStatus}}</th>
-                    <td>
-                        <div class="d-flex justify-content-end gap-2">
+                                <!-- view button -->
+                                <form action="/viewMember/{{this._id}}" method="GET">
+                                    <button type="submit" class="btn btn-success custom-btn">View</button>
+                                </form>
 
-                            <!-- view button -->
-                            <form action="/viewMember/{{this._id}}" method="GET">
-                                <button type="submit" class="btn btn-success custom-btn">View</button>
-                            </form>
+                                <!-- edit button -->
+                                <form action="/editMember/{{this._id}}" method="GET">
+                                    <button type="submit" class="btn btn-primary custom-btn">Edit</button>
+                                </form>
+                                <!-- Delete Confirmation Modal -->
+                                <div class="delete-btn">
+                                    <button class="btn btn-danger custom-btn" data-bs-toggle="modal"
+                                        data-bs-target="#deleteConfirmationModal">Delete</button>
+                                </div>
 
-                            <!-- edit button -->
-                            <form action="/editMember/{{this._id}}" method="GET">
-                                <button type="submit" class="btn btn-primary custom-btn">Edit</button>
-                            </form>
-                            <!-- Delete Confirmation Modal -->
-                            <div class="delete-btn">
-                                <button class="btn btn-danger custom-btn" data-bs-toggle="modal"
-                                    data-bs-target="#deleteConfirmationModal">Delete</button>
-                            </div>
-
-                            <!-- Delete Confirmation Modal -->
-                            <div class="modal fade" id="deleteConfirmationModal" tabindex="-1"
-                                aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
-                                <div class="modal-dialog">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirmation</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                                aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <p>Are you sure you want to delete this member?</p>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary"
-                                                data-bs-dismiss="modal">Cancel</button>
-                                            <form action="/delete/{{this._id}}" method="POST">
-                                                <button type="submit" class="btn btn-danger">Delete</button>
-                                            </form>
+                                <!-- Delete Confirmation Modal -->
+                                <div class="modal fade" id="deleteConfirmationModal" tabindex="-1"
+                                    aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirmation
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                                    aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Are you sure you want to delete this member?</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-bs-dismiss="modal">Cancel</button>
+                                                <form action="/delete/{{this._id}}" method="POST">
+                                                    <button type="submit" class="btn btn-danger">Delete</button>
+                                                </form>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    </td>
-                </tr>
+                        </td>
+                    </tr>
+                </div>
                 {{/each}}
             </tbody>
         </table>
