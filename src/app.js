@@ -41,7 +41,29 @@ hbs.registerHelper("eq", function (arg1, arg2, options) {
   return arg1 === arg2 ? options.fn : options.inverse;
 });
 
-//index file hbs
+// Configure the session middleware
+app.use(
+  session({
+    secret: "your-secret-key",
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+// Middleware to check if the user is authenticated
+const checkAuth = (req, res, next) => {
+  if (req.session && req.session.userId) {
+    // User is authenticated, proceed to the next middleware or route handler
+    next();
+  } else {
+    // User is not authenticated, redirect to the login page or return an error
+    res.redirect("/login");
+  }
+};
+// index
+app.get("/", async (req, res) => {
+  res.render("index");
+});
+//login route
 app.get("/login", async (req, res) => {
   res.render("login");
 });
@@ -76,19 +98,20 @@ app.post("/login", async (req, res) => {
     const password = req.body.password;
     const useremail = await Register.findOne({ email: email });
 
-    req.session.userId = user.id;
+    req.session.userId = useremail._id;
 
-    if (useremail.password === password) {
+    if (useremail && useremail.password === password) {
       res.redirect("/viewall");
     } else {
       res.send("invalid login Details");
     }
   } catch (err) {
+    console.error(err);
     res.status(400).send("invalid Details ");
   }
 });
 
-app.get("/viewall", async (req, res) => {
+app.get("/viewall", checkAuth, async (req, res) => {
   try {
     const allMembers = await Member.find().sort({ regno: -1 });
     res.render("viewall", { members: allMembers });
@@ -98,7 +121,7 @@ app.get("/viewall", async (req, res) => {
   }
 });
 
-app.get("/addmember", async (req, res) => {
+app.get("/addmember", checkAuth, async (req, res) => {
   res.render("addMember");
 });
 
@@ -126,7 +149,7 @@ app.post("/delete/:id", async (req, res) => {
   res.redirect("/viewall");
 });
 
-app.get("/editMember/:id", async (req, res) => {
+app.get("/editMember/:id", checkAuth, async (req, res) => {
   try {
     const memberId = req.params.id;
     const member = await Member.findById(memberId);
@@ -161,7 +184,7 @@ app.post("/editMember/:id", async (req, res) => {
   }
 });
 
-app.get("/viewMember/:id", async (req, res) => {
+app.get("/viewMember/:id", checkAuth, async (req, res) => {
   try {
     const memberId = req.params.id;
     // Find the member by ID
@@ -186,7 +209,7 @@ app.get("/viewMember/:id", async (req, res) => {
 
 //search
 
-app.get("/searchMember", async (req, res) => {
+app.get("/searchMember", checkAuth, async (req, res) => {
   try {
     const searchName = req.query.name; // Get the search name from the query parameters
     const searchReg = req.query.regno;
