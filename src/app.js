@@ -1,10 +1,13 @@
 const express = require("express");
-const mongoose = require("mongoose");
+
 const app = express();
 const port = process.env.PORT || 3000;
 const path = require("path");
 const hbs = require("hbs");
 const session = require("express-session");
+
+const bcrypt = require("bcrypt");
+const saltRounds = 10;
 
 require("./db/conn");
 const Member = require("../src/models/member");
@@ -76,14 +79,18 @@ app.post("/register", async (req, res) => {
     const password = req.body.password;
     const confirmpassword = req.body.confirmpassword;
     if (password === confirmpassword) {
+      //Hash password
+      const hashedPassword = await bcrypt.hash(password, saltRounds);
+
       const registerMember = new Register({
         fname: req.body.firstname,
         lname: req.body.lastname,
         email: req.body.email,
-        password: req.body.password,
-        confirmpassword: req.body.confirmpassword,
+        password: hashedPassword,
+        confirmpassword: hashedPassword,
         phone: req.body.phone,
       });
+
       await registerMember.save();
       res.status(201).render("login");
     }
@@ -96,14 +103,22 @@ app.post("/login", async (req, res) => {
   try {
     const email = req.body.email;
     const password = req.body.password;
-    const useremail = await Register.findOne({ email: email });
 
-    req.session.userId = useremail._id;
+    const user = await Register.findOne({ email: email });
 
-    if (useremail && useremail.password === password) {
-      res.redirect("/viewall");
+    if (user) {
+      // Compare the provided password with the stored hashed password
+      const passwordMatch = await bcrypt.compare(password, user.password);
+
+      if (passwordMatch) {
+        // Set the userId in the session
+        req.session.userId = user._id;
+        res.redirect("/viewall");
+      } else {
+        res.send("invalid login Details");
+      }
     } else {
-      res.send("invalid login Details");
+      res.send("Invalid login details");
     }
   } catch (err) {
     console.error(err);
