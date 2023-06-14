@@ -4,7 +4,9 @@ const app = express();
 const port = process.env.PORT || 3000;
 const path = require("path");
 const hbs = require("hbs");
+//for handeling login session
 const session = require("express-session");
+const MongoDBStore = require("connect-mongodb-session")(session);
 
 const bcrypt = require("bcrypt");
 const saltRounds = 10;
@@ -12,6 +14,7 @@ const saltRounds = 10;
 require("./db/conn");
 const Member = require("../src/models/member");
 const Register = require("../src/models/register");
+const Payment = require("../src/models/payment");
 
 //view engiene
 const partials_path = path.join(__dirname, "../templates/partials");
@@ -44,12 +47,22 @@ hbs.registerHelper("eq", function (arg1, arg2, options) {
   return arg1 === arg2 ? options.fn : options.inverse;
 });
 
+// Create a MongoDB session store
+const store = new MongoDBStore({
+  uri: "mongodb://localhost:27017/member", // Replace with your MongoDB connection URI
+  collection: "sessions",
+});
+// Catch session store errors
+store.on("error", (error) => {
+  console.error("Session store error:", error);
+});
 // Configure the session middleware
 app.use(
   session({
     secret: "your-secret-key",
     resave: false,
     saveUninitialized: true,
+    store: store, // Use the MongoDB session store
   })
 );
 // Middleware to check if the user is authenticated
@@ -160,8 +173,20 @@ app.post("/addmember", async (req, res) => {
 });
 
 app.post("/delete/:id", async (req, res) => {
-  await Member.findByIdAndDelete(req.params.id);
-  res.redirect("/viewall");
+  try {
+    const memberId = req.params.id;
+
+    // Delete the member
+    await Member.findByIdAndDelete(memberId);
+
+    // Delete the payments associated with the member
+    await Payment.deleteMany({ member: memberId });
+
+    res.redirect("/viewall");
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server Error");
+  }
 });
 
 app.get("/editMember/:id", checkAuth, async (req, res) => {
@@ -208,19 +233,42 @@ app.get("/viewMember/:id", checkAuth, async (req, res) => {
       // Handle member not found error
       return res.status(404).send("Member not found");
     }
+    const payments = await Payment.find({ member: memberId }).sort({
+      endDate: -1,
+    });
 
-    const start = new Date(member.start);
-    const end = new Date(member.end);
+    const formattedPayments = payments.map((payment) => {
+      const start = new Date(payment.startDate);
+      const end = new Date(payment.endDate);
 
-    const formattedStartDate = start.toISOString().split("T")[0]; // Format start date as YYYY-MM-DD
-    const formattedEndDate = end.toISOString().split("T")[0]; // Format end date as YYYY-MM-DD
-    // Render the view with the bcafirst object as a variable
-    res.render("viewMember", { member, formattedStartDate, formattedEndDate });
+      const formattedStartDate = isValidDate(start)
+        ? start.toISOString().split("T")[0]
+        : "Invalid Date";
+      const formattedEndDate = isValidDate(end)
+        ? end.toISOString().split("T")[0]
+        : "Invalid Date";
+
+      return {
+        amount: payment.amount,
+        formattedStartDate,
+        formattedEndDate,
+      };
+    });
+
+    res.render("viewMember", {
+      member,
+      payments: formattedPayments,
+    });
   } catch (err) {
     console.error(err);
     res.status(500).send("Server Error");
   }
 });
+
+// Function to check if a date is valid
+function isValidDate(date) {
+  return date instanceof Date && !isNaN(date);
+}
 
 //search
 
@@ -261,6 +309,65 @@ app.get("/searchMember", checkAuth, async (req, res) => {
   } catch (err) {
     res.send("No member found");
   }
+});
+
+//payment
+app.get("/processPayment/:id", checkAuth, async (req, res) => {
+  try {
+    const memberId = req.params.id;
+    // Find the member by ID
+    const member = await Member.findById(memberId);
+    if (!member) {
+      // Handle member not found error
+      return res.status(404).send("Member not found");
+    }
+    res.render("payment", { regno: member.regno });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server Error");
+  }
+});
+app.post("/processPayment", (req, res) => {
+  const regno = req.body.regno; // Assuming the member identifier is the registration number
+  const amount = req.body.amount;
+  const startDate = new Date(req.body.startDate);
+  const endDate = new Date(req.body.endDate);
+
+  // Find the member based on the provided registration number
+  Member.findOne({ regno: regno })
+    .then((foundMember) => {
+      if (!foundMember) {
+        // console.log("Member not found");
+        return res.send("Member not found");
+      }
+
+      const memberId = foundMember._id;
+
+      // Create a new payment document and assign the member ID
+      const payment = new Payment({
+        member: memberId,
+        amount: amount,
+        startDate: startDate, // Use startDate instead of start
+        endDate: endDate, // Use endDate instead of end
+      });
+
+      // Validate the payment document
+      const validationError = payment.validateSync();
+      if (validationError) {
+        console.error("Payment validation error:", validationError);
+        return res.send("error");
+      }
+      // Save the payment document to the database
+      return payment.save();
+    })
+    .then((savedPayment) => {
+      // console.log("Payment saved:", savedPayment);
+      res.redirect("/viewall");
+    })
+    .catch((error) => {
+      // console.error("Error saving payment:", error);
+      res.send("error");
+    });
 });
 
 app.listen(port, () => {

@@ -6,23 +6,29 @@
         <h1>Name: {{member.name}}</h1>
         <h2>Reg No: {{member.regno}}</h2>
     </div>
-    <form action="/viewall" method="GET">
-        <button type="submit" class="btn btn-primary custom-btn">Back</button>
-    </form>
+    <div class="form-btn">
+
+        <form action="/viewall" method="GET">
+            <button type="submit" class="btn btn-primary custom-btn">Back</button>
+        </form>
+
+    </div>
     <table class="table table-striped">
         <h2 class="center">Payments</h2>
         <tbody>
             <tr>
-                <th scope="col">Sn</th>
+                <th scope="col">Amount</th>
                 <th scope="col">Start</th>
                 <th scope="col">End</th>
             </tr>
 
+            {{#each payments}}
             <tr>
-                <th scope="row">1</th>
-                <td>{{formattedStartDate}}</td>
-                <td>{{formattedEndDate}}</td>
+                <th scope="row">{{this.amount}}</th>
+                <th>{{formattedStartDate}}</th>
+                <th>{{formattedEndDate}}</th>
             </tr>
+            {{/each}}
 
         </tbody>
     </table>

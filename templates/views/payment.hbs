@@ -1,0 +1,21 @@
+{{>header}}
+<form action="/processPayment" class="tableDiv" method="POST">
+    <div class="mb-3">
+        <label for="amount" class="form-label">RegNo:</label>
+        <input type="number" value="{{regno}}" class="form-control" id="amount" name="regno" readonly>
+    </div>
+    <div class="mb-3">
+        <label for="amount" class="form-label">Amount:</label>
+        <input type="number" class="form-control" id="amount" name="amount" required>
+    </div>
+
+    <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">Start:</label>
+        <input type="date" name="startDate" required class="form-control" id="exampleInputEmail1" />
+    </div>
+    <div class="mb-3">
+        <label for="exampleInputEmail1" class="form-label">End:</label>
+        <input type="date" name="endDate" required class="form-control" id="exampleInputEmail1" />
+    </div>
+    <button type="submit" class="btn btn-primary">Submit Payment</button>
+</form>
