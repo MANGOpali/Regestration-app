@@ -142,7 +142,13 @@ app.post("/login", async (req, res) => {
 app.get("/viewall", checkAuth, async (req, res) => {
   try {
     const allMembers = await Member.find().sort({ regno: -1 });
-    res.render("viewall", { members: allMembers });
+    //counts total members listed in the database
+    const totalMembers = await Member.countDocuments({});
+
+    res.render("viewall", {
+      members: allMembers,
+      totalMembers: totalMembers,
+    });
   } catch (err) {
     console.error("Error retrieving members:", err);
     res.send("Error retrieving members: " + err.message);
@@ -248,10 +254,14 @@ app.get("/viewMember/:id", checkAuth, async (req, res) => {
         ? end.toISOString().split("T")[0]
         : "Invalid Date";
 
+      const currentDate = new Date();
+      const isExpired = end <= currentDate;
+      const color = isExpired ? "red" : "green";
       return {
         amount: payment.amount,
         formattedStartDate,
         formattedEndDate,
+        color,
       };
     });
 
@@ -294,17 +304,30 @@ app.get("/searchMember", checkAuth, async (req, res) => {
 
     const member = await Member.findOne(query);
 
-    const start = new Date(member.start);
-    const end = new Date(member.end);
-    const formattedStartDate = start.toISOString().split("T")[0];
-    const formattedEndDate = end.toISOString().split("T")[0];
+    const payments = await Payment.find({ member }).sort({
+      endDate: -1,
+    });
+    const formattedPayments = payments.map((payment) => {
+      const start = new Date(payment.startDate);
+      const end = new Date(payment.endDate);
+
+      const formattedStartDate = isValidDate(start)
+        ? start.toISOString().split("T")[0]
+        : "Invalid Date";
+      const formattedEndDate = isValidDate(end)
+        ? end.toISOString().split("T")[0]
+        : "Invalid Date";
+
+      return {
+        amount: payment.amount,
+        formattedStartDate,
+        formattedEndDate,
+      };
+    });
 
     res.render("searchMember", {
       member,
-      formattedStartDate,
-      formattedEndDate,
-      searchName: "", // Clear the searchName value in the template
-      searchReg: "", // Clear the searchReg value in the template
+      payments: formattedPayments,
     });
   } catch (err) {
     res.send("No member found");

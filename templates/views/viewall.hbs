@@ -4,12 +4,14 @@
 
     <div class="tableDiv">
         <h1 style="text-align: center " class="mb-3">All Members</h1>
+        <h3 style="text-align: center " class="mb-3">Total Members ({{totalMembers}})</h3>
         <table class="table table-striped">
             <thead>
                 <tr>
                     <th scope="col">Name</th>
                     <th scope="col">RegNo</th>
                     <th scope="col">Status</th>
+
                 </tr>
             </thead>
             <tbody>
@@ -43,7 +45,7 @@
                     <tr>
                         <th scope="row">{{this.name}}</th>
                         <th>{{this.regno}}</th>
-                        <th class="stat ">{{this.computedStatus}}</th>
+                        <th class="stat">{{this.computedStatus}}</th>
                         <td>
                             <div class="d-flex justify-content-end gap-2">
 
@@ -94,6 +96,7 @@
                     </tr>
                 </div>
                 {{/each}}
+
             </tbody>
         </table>
     </div>
