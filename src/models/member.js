@@ -3,15 +3,16 @@ const mongoose = require("mongoose");
 const memberSchema = new mongoose.Schema({
   name: {
     type: String,
-    require: true,
+    required: true,
   },
   regno: {
     type: Number,
-    require: true,
+    required: true,
   },
-
-  status: {
+  phone: {
     type: String,
+    required: true,
+    match: /^\d{10}$/, // Regular expression to validate the format (e.g., 10-digit phone number)
   },
   joinDate: {
     type: Date,

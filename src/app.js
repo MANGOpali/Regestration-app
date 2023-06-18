@@ -162,8 +162,12 @@ app.get("/viewall", checkAuth, async (req, res) => {
       const payment = payments.find(
         (p) => p._id.toString() === member._id.toString()
       );
-      member.computedStatus =
-        payment?.latestEndDate <= currentDate ? "expired" : "active";
+      if (payment && payment.latestEndDate) {
+        member.computedStatus =
+          payment.latestEndDate <= currentDate ? "expired" : "active";
+      } else {
+        member.computedStatus = "N/A";
+      }
       return member;
     });
 
@@ -175,7 +179,9 @@ app.get("/viewall", checkAuth, async (req, res) => {
           memberId: payment._id,
           latestEndDate: payment.latestEndDate,
           computedStatus:
-            payment.latestEndDate <= currentDate ? "expired" : "active",
+            payment.latestEndDate && payment.latestEndDate <= currentDate
+              ? "expired"
+              : "active",
         };
       }),
     });
@@ -194,9 +200,7 @@ app.post("/addmember", async (req, res) => {
     const member = new Member({
       name: req.body.name,
       regno: req.body.regno,
-      status: req.body.status,
-      start: req.body.startDate,
-      end: req.body.endDate,
+      phone: req.body.phone,
     });
 
     const newMember = await member.save();
