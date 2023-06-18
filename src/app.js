@@ -145,9 +145,39 @@ app.get("/viewall", checkAuth, async (req, res) => {
     //counts total members listed in the database
     const totalMembers = await Member.countDocuments({});
 
+    // Fetch the payments from the database and sort by endDate in descending order
+    const payments = await Payment.aggregate([
+      { $sort: { endDate: -1 } },
+      {
+        $group: {
+          _id: "$member",
+          latestEndDate: { $first: "$endDate" },
+        },
+      },
+      { $sort: { latestEndDate: 1 } }, // Sort by latestEndDate in adcending order
+    ]);
+
+    const currentDate = new Date();
+    const updatedMembers = allMembers.map((member) => {
+      const payment = payments.find(
+        (p) => p._id.toString() === member._id.toString()
+      );
+      member.computedStatus =
+        payment?.latestEndDate <= currentDate ? "expired" : "active";
+      return member;
+    });
+
     res.render("viewall", {
-      members: allMembers,
+      members: updatedMembers,
       totalMembers: totalMembers,
+      payments: payments.map((payment) => {
+        return {
+          memberId: payment._id,
+          latestEndDate: payment.latestEndDate,
+          computedStatus:
+            payment.latestEndDate <= currentDate ? "expired" : "active",
+        };
+      }),
     });
   } catch (err) {
     console.error("Error retrieving members:", err);
